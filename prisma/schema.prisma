@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Make {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  models Model[]
+}
+
+model Model {
+  id        Int      @id @default(autoincrement())
+  makeId    Int
+  name      String   @db.VarChar(100)
+  year      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  parts PartsModel[]
+  bulbs BulbsModel[]
+
+  make Make @relation(fields: [makeId], references: [id])
+}
+
+model Part {
+  id     Int          @id @default(autoincrement())
+  name   String       @db.VarChar(100)
+  models PartsModel[]
+  bulbs  Bulb[]
+}
+
+model PartsModel {
+  part    Part  @relation(fields: [partId], references: [id])
+  partId  Int
+  model   Model @relation(fields: [modelId], references: [id])
+  modelId Int
+
+  @@id([partId, modelId])
+}
+
+model Bulb {
+  id     Int    @id @default(autoincrement())
+  descr  String @db.VarChar(100)
+  partId Int
+
+  models BulbsModel[]
+
+  part Part @relation(fields: [partId], references: [id])
+}
+
+model BulbsModel {
+  bulb    Bulb  @relation(fields: [bulbId], references: [id])
+  bulbId  Int
+  model   Model @relation(fields: [modelId], references: [id])
+  modelId Int
+
+  @@id([bulbId, modelId])
+}
