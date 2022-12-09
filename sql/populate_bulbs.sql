@@ -11,9 +11,13 @@ insert into "Bulb" (descr, "partId") values ('H7', (select id from "Part" where 
 insert into "Bulb" (descr, "partId") values ('H1', (select id from "Part" where name = 'Low Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('H7', (select id from "Part" where name = 'Low Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('H11', (select id from "Part" where name = 'Low Beam Headlight'));
+insert into "Bulb" (descr, "partId") values ('9004', (select id from "Part" where name = 'Low Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('9005', (select id from "Part" where name = 'Low Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('9006', (select id from "Part" where name = 'Low Beam Headlight'));
+insert into "Bulb" (descr, "partId") values ('9007', (select id from "Part" where name = 'Low Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('H1', (select id from "Part" where name = 'High Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('H7', (select id from "Part" where name = 'High Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('H11', (select id from "Part" where name = 'High Beam Headlight'));
+insert into "Bulb" (descr, "partId") values ('9004', (select id from "Part" where name = 'High Beam Headlight'));
 insert into "Bulb" (descr, "partId") values ('9005', (select id from "Part" where name = 'High Beam Headlight'));
+insert into "Bulb" (descr, "partId") values ('880', (select id from "Part" where name = 'High Beam Headlight'));
