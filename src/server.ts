@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { data as marcas } from './data';
 import { data2 as modelos } from './data2';
 import { stringify } from 'querystring';
@@ -12,155 +12,6 @@ app.use(cors());
 const prisma = new PrismaClient({
   log: ['query'],
 });
-interface MakeProps {
-  id: string;
-  name: string;
-}
-interface BulbProps {
-  id: string;
-  descr: string;
-  partId: string;
-}
-app.post('/make', async (req, res) => {
-  const body = req.body;
-
-  const make = await prisma.make.create({
-    data: {
-      name: body.name,
-    },
-  });
-  res.status(201).json(make);
-});
-
-const makes = [
-  { name: 'Audi' },
-  { name: 'Austin' },
-  { name: 'Austin Healey' },
-  { name: 'Avanti' },
-  { name: 'Bajaj Motorcycle' },
-  { name: 'Benelli Motorcycle' },
-  { name: 'Bentley' },
-  { name: 'Bertone' },
-  { name: 'Big Dog Motorcycle' },
-  { name: 'Bimota Motorcycle' },
-  { name: 'BMW' },
-  { name: 'BMW Motorcycle' },
-  { name: 'Bricklin' },
-  { name: 'Buell Motorcycle' },
-  { name: 'Bugatti' },
-  { name: 'Buick' },
-  { name: 'Cadillac' },
-  { name: 'Cagiva Motorcycle' },
-  { name: 'Can-Am Motorcycle' },
-  { name: 'Chevrolet' },
-  { name: 'Chrysler' },
-  { name: 'Citroen' },
-  { name: 'Daewoo' },
-  { name: 'Daihatsu' },
-  { name: 'DeLorean' },
-  { name: 'Dodge' },
-  { name: 'Ducati Motorcycle' },
-  { name: 'Eagle' },
-  { name: 'Edsel' },
-  { name: 'FAW' },
-  { name: 'Ferrari' },
-  { name: 'Fiat' },
-  { name: 'Fisker' },
-  { name: 'Ford' },
-  { name: 'Freightliner' },
-  { name: 'Gas Gas Motorcycle' },
-  { name: 'Genesis' },
-  { name: 'Geo' },
-  { name: 'GMC' },
-  { name: 'Harley Davidson Motorcycle' },
-  { name: 'Honda' },
-  { name: 'Honda Motorcycle' },
-  { name: 'Hummer' },
-  { name: 'Husqvarna Motorcycle' },
-  { name: 'Hyosung Motorcycle' },
-  { name: 'Hyundai' },
-  { name: 'Indian Motorcycle' },
-  { name: 'Infiniti' },
-  { name: 'International' },
-  { name: 'Isuzu' },
-  { name: 'Italika Motorcycle' },
-  { name: 'Jaguar' },
-  { name: 'Jeep' },
-  { name: 'Kawasaki Motorcycle' },
-  { name: 'Kia' },
-  { name: 'KTM Motorcycle' },
-  { name: 'KYMCO Motorcycle' },
-  { name: 'Lada' },
-  { name: 'Lamborghini' },
-  { name: 'Land Rover' },
-  { name: 'Lexus' },
-  { name: 'Lincoln' },
-  { name: 'Maserati' },
-  { name: 'Maybach' },
-  { name: 'Mazda' },
-  { name: 'Mercedes-Benz' },
-  { name: 'Mercury' },
-  { name: 'Merkur' },
-  { name: 'MG' },
-  { name: 'Mini' },
-  { name: 'Mitsubishi' },
-  { name: 'Mobility Ventures' },
-  { name: 'Moto Guzzi Motorcycle' },
-  { name: 'Nissan' },
-  { name: 'Oldsmobile' },
-  { name: 'Opel' },
-  { name: 'Peugeot' },
-  { name: 'Piaggio Motorcycle' },
-  { name: 'Plymouth' },
-  { name: 'Polaris' },
-  { name: 'Polaris Motorcycle' },
-  { name: 'Pontiac' },
-  { name: 'Porsche' },
-  { name: 'Ram' },
-  { name: 'Renault' },
-  { name: 'Rolls-Royce' },
-  { name: 'Rover' },
-  { name: 'Saab' },
-  { name: 'Saturn' },
-  { name: 'Scion' },
-  { name: 'Seat' },
-  { name: 'Simca' },
-  { name: 'Ski-Doo' },
-  { name: 'Smart' },
-  { name: 'SRT' },
-  { name: 'Sterling' },
-  { name: 'Studebaker' },
-  { name: 'Subaru' },
-  { name: 'Sunbeam' },
-  { name: 'Suzuki' },
-  { name: 'Suzuki Motorcycle' },
-  { name: 'Tesla' },
-  { name: 'Think' },
-  { name: 'Toyota' },
-  { name: 'Triumph' },
-  { name: 'Triumph Motorcycle' },
-  { name: 'Vespa Motorcycle' },
-  { name: 'Victory Motorcycle' },
-  { name: 'Volkswagen' },
-  { name: 'Volvo' },
-  { name: 'VPG' },
-  { name: 'Yamaha' },
-  { name: 'Yamaha Motorcycle' },
-  { name: 'Yugo' },
-  { name: 'ZERO Motorcycle' },
-];
-
-app.post('/makes', (req, res) => {
-  const mks = makes.map((make) => {
-    prisma.make.create({
-      data: {
-        name: make.name,
-      },
-    });
-  });
-  Promise.all(mks);
-  res.status(201).json(mks);
-});
 
 app.get('/makes', async (req, res) => {
   const makes = await prisma.make.findMany({
@@ -170,41 +21,47 @@ app.get('/makes', async (req, res) => {
   res.json(makes);
 });
 
-app.post('/models', async (rec, res) => {
-  const cars = marcas.map(async (item) => {
-    let make = await prisma.make.findFirst({ where: { name: item.name } });
-    const models = item.model.create.map(async (car) => {
-      let newCar = { ...car, makeId: make ? make.id : '' };
-      let model = await prisma.model.create({
-        data: newCar,
-      });
-      console.log(model);
-    });
-  });
-  await Promise.all(cars);
-  res.json(cars);
+app.get('/makes', async (req, res) => {
+  const { year } = req.body;
+  const makes = await prisma.$queryRaw(
+    Prisma.sql`select mk.id, mk.name from "Model" m 
+               join "Make" mk on mk.id = m."makeId" 
+               where m.year = ${year} 
+               group by mk.id, mk.name 
+               order by mk.id`
+  );
+
+  return res.json(makes);
 });
 
-app.post('/part', async (req, res) => {
-  const body = req.body;
-  const part = await prisma.part.create({ data: body });
-  res.json(part);
+app.get('/models', async (req, res) => {
+  const { make, year } = req.body;
+  const models = await prisma.model.findMany({
+    where: {
+      year,
+      makeId: make,
+    },
+    select: {
+      name: true,
+      id: true,
+    },
+  });
+
+  return res.json(models);
 });
 
-app.post('/bulb', async (req, res) => {
-  const body = req.body;
-  const part = await prisma.part.findFirst({ where: { name: body.part } });
-  let lamps = <BulbProps[]>[];
-  const bulbs = body.bulbs.map(async (bulb: string) => {
-    let lamp = await prisma.bulb.create({
-      data: {
-        descr: bulb,
-        partId: part ? part.id : '',
-      },
-    });
-    console.log(lamp);
-    return lamp;
-  });
-  res.json(lamps);
+app.get('/bulbs', async (req, res) => {
+  const { model } = req.body;
+  const bulbs =
+    await prisma.$queryRaw(Prisma.sql`select b.id, b.descr as bulb, p.id as part_id, p.name as part
+                                                  from "Bulb" b
+                                                  join "BulbsModel"  bm on bm."bulbId" = b.id 
+                                                  join "Part" p on b."partId" = p.id
+                                                  where bm."modelId" = ${model}`);
+
+  return res.json(bulbs);
 });
-app.listen(3333);
+
+app.listen(3333, () => {
+  console.log('app is running on http://127.0.0.1:3333');
+});
