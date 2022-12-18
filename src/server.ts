@@ -13,12 +13,14 @@ const prisma = new PrismaClient({
   log: ['query'],
 });
 
-app.get('/makes', async (req, res) => {
-  const makes = await prisma.make.findMany({
-    select: { id: true, name: true },
-  });
+app.get('/year', async (req, res) => {
+  const years = await prisma.$queryRaw(
+    Prisma.sql`select m.year as id, m.year as name from "Model" m  
+               group by m.year 
+               order by m.year desc`
+  );
 
-  res.json(makes);
+  return res.json(years);
 });
 
 app.get('/makes', async (req, res) => {
