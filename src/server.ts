@@ -63,16 +63,24 @@ app.get('/bulbs', async (req, res) => {
   const { model } = req.query;
   let modelNum = 0;
   if (typeof model == 'string') modelNum = +model;
-  const bulbs =
-    await prisma.$queryRaw(Prisma.sql`select b.id, b.descr as bulb, p.id as part_id, p.name as part
-                                                  from "Bulb" b
-                                                  join "BulbsModel"  bm on bm."bulbId" = b.id 
-                                                  join "Part" p on b."partId" = p.id
-                                                  where bm."modelId" = ${modelNum}`);
-
+  const bulbs = await prisma.$queryRaw(Prisma.sql`select b.id, 
+                                             b.descr as bulb, 
+                                             p.id as part_id, 
+                                             p.name as part, 
+                                             m.name as model, 
+                                             m.year,
+                                             m.id as model_id, 
+                                             mk.id as make_id, 
+                                             mk.name as make    
+                                      from "Bulb" b
+                                      join "BulbsModel"  bm on bm."bulbId" = b.id 
+                                      join "Part" p on b."partId" = p.id
+                                      join "Model" m on bm."modelId" = m.id
+                                      join "Make" mk on mk.id = m."makeId"
+                                      where bm."modelId" = ${modelNum}`);
   return res.json(bulbs);
 });
 
 app.listen(3333, () => {
-  console.log('app is running on http://127.0.0.1:3333');
+  console.log('app is running on http://0.0.0.0:3333');
 });
