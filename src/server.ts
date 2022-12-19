@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
   log: ['query'],
 });
 
-app.get('/year', async (req, res) => {
+app.get('/years', async (req, res) => {
   const years = await prisma.$queryRaw(
     Prisma.sql`select m.year as id, m.year as name from "Model" m  
                group by m.year 
@@ -24,12 +24,15 @@ app.get('/year', async (req, res) => {
 });
 
 app.get('/makes', async (req, res) => {
-  const { year } = req.body;
+  const { year } = req.query;
+  let yearNum = 0;
+  if (typeof year == 'string') yearNum = +year;
+
   const makes = await prisma.$queryRaw(
-    Prisma.sql`select mk.id, mk.name from "Model" m 
-               join "Make" mk on mk.id = m."makeId" 
-               where m.year = ${year} 
-               group by mk.id, mk.name 
+    Prisma.sql`select mk.id, mk.name from "Model" m
+               join "Make" mk on mk.id = m."makeId"
+               where m.year = ${yearNum}
+               group by mk.id, mk.name
                order by mk.id`
   );
 
@@ -37,11 +40,15 @@ app.get('/makes', async (req, res) => {
 });
 
 app.get('/models', async (req, res) => {
-  const { make, year } = req.body;
+  const { make, year } = req.query;
+  let yearNum = 0;
+  let makeNum = 0;
+  if (typeof year == 'string') yearNum = +year;
+  if (typeof make == 'string') makeNum = +make;
   const models = await prisma.model.findMany({
     where: {
-      year,
-      makeId: make,
+      year: yearNum,
+      makeId: makeNum,
     },
     select: {
       name: true,
@@ -53,13 +60,15 @@ app.get('/models', async (req, res) => {
 });
 
 app.get('/bulbs', async (req, res) => {
-  const { model } = req.body;
+  const { model } = req.query;
+  let modelNum = 0;
+  if (typeof model == 'string') modelNum = +model;
   const bulbs =
     await prisma.$queryRaw(Prisma.sql`select b.id, b.descr as bulb, p.id as part_id, p.name as part
                                                   from "Bulb" b
                                                   join "BulbsModel"  bm on bm."bulbId" = b.id 
                                                   join "Part" p on b."partId" = p.id
-                                                  where bm."modelId" = ${model}`);
+                                                  where bm."modelId" = ${modelNum}`);
 
   return res.json(bulbs);
 });
