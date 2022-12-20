@@ -50,9 +50,13 @@ model PartsModel {
 }
 
 model Bulb {
-  id     Int    @id @default(autoincrement())
-  descr  String @db.VarChar(100)
-  partId Int
+  id           Int     @id @default(autoincrement())
+  descr        String  @db.VarChar(100)
+  partId       Int
+  img_platinum String? @db.VarChar(512)
+  url_platinum String? @db.VarChar(512)
+  img_m_series String? @db.VarChar(512)
+  url_m_series String? @db.VarChar(512)
 
   models BulbsModel[]
 

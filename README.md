@@ -16,3 +16,25 @@
 
 4. **Populate the database**
    - run files from `/sql` folder
+
+## Production
+
+1. **login on aws**
+
+   `ssh u**@0.0.0.0`
+
+2. **update the App**
+
+   `git pull`
+
+3. **run migrations**
+
+   `yarn prisma db push`
+
+4. **add new data**
+
+   - run files from `/sql` folder
+
+5. **start server**
+
+   `npm start`
