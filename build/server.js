@@ -18,11 +18,9 @@ const client_1 = require("@prisma/client");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-const prisma = new client_1.PrismaClient({
-    log: ['query'],
-});
+const prisma = new client_1.PrismaClient({});
 app.get('/years', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const years = yield prisma.$queryRaw(client_1.Prisma.sql `select m.year as id, m.year as name from "Model" m  
+    const years = yield prisma.$queryRaw(client_1.Prisma.sql `select m.year as id, m.year as name from models m  
                group by m.year 
                order by m.year desc`);
     return res.json(years);
@@ -32,8 +30,8 @@ app.get('/makes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let yearNum = 0;
     if (typeof year == 'string')
         yearNum = +year;
-    const makes = yield prisma.$queryRaw(client_1.Prisma.sql `select mk.id, mk.name from "Model" m
-               join "Make" mk on mk.id = m."makeId"
+    const makes = yield prisma.$queryRaw(client_1.Prisma.sql `select mk.id, mk.name from models m
+               join makes mk on mk.id = m.make_id
                where m.year = ${yearNum}
                group by mk.id, mk.name
                order by mk.id`);
@@ -65,7 +63,11 @@ app.get('/bulbs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof model == 'string')
         modelNum = +model;
     const bulbs = yield prisma.$queryRaw(client_1.Prisma.sql `select b.id, 
-                                             b.descr as bulb, 
+                                             b.descr as bulb,
+                                             b.url_platinum,
+                                             b.url_m_series,
+                                             b.img_platinum,
+                                             b.img_m_series, 
                                              p.id as part_id, 
                                              p.name as part, 
                                              m.name as model, 
@@ -73,12 +75,12 @@ app.get('/bulbs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                                              m.id as model_id, 
                                              mk.id as make_id, 
                                              mk.name as make    
-                                      from "Bulb" b
-                                      join "BulbsModel"  bm on bm."bulbId" = b.id 
-                                      join "Part" p on b."partId" = p.id
-                                      join "Model" m on bm."modelId" = m.id
-                                      join "Make" mk on mk.id = m."makeId"
-                                      where bm."modelId" = ${modelNum}`);
+                                      from models m
+                                      join makes mk on mk.id = m.make_id
+                                      left join bulbs_models bm on bm.model_id = m.id 
+                                      left join bulbs b on bm.bulb_id = b.id
+                                      left join parts p on b.part_id = p.id
+                                      where m.id = ${modelNum}`);
     return res.json(bulbs);
 }));
 app.listen(3333, () => {
