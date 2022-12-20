@@ -133,4 +133,4 @@ insert into "Make" (name) values ('White/GMC');
 insert into "Make" (name) values ('Yamaha');
 insert into "Make" (name) values ('Yamaha Motorcycle');
 insert into "Make" (name) values ('Yugo');
-insert into "Make" (name) values ('ZERO Motorcycle')
+insert into "Make" (name) values ('ZERO Motorcycle');

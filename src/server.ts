@@ -1,9 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { data as marcas } from './data';
-import { data2 as modelos } from './data2';
-import { stringify } from 'querystring';
 const app = express();
 
 app.use(express.json());
