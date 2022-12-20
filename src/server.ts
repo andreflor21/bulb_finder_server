@@ -6,13 +6,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const prisma = new PrismaClient({
-  log: ['query'],
-});
+const prisma = new PrismaClient({});
 
 app.get('/years', async (req, res) => {
   const years = await prisma.$queryRaw(
-    Prisma.sql`select m.year as id, m.year as name from "Model" m  
+    Prisma.sql`select m.year as id, m.year as name from models m  
                group by m.year 
                order by m.year desc`
   );
@@ -26,8 +24,8 @@ app.get('/makes', async (req, res) => {
   if (typeof year == 'string') yearNum = +year;
 
   const makes = await prisma.$queryRaw(
-    Prisma.sql`select mk.id, mk.name from "Model" m
-               join "Make" mk on mk.id = m."makeId"
+    Prisma.sql`select mk.id, mk.name from models m
+               join makes mk on mk.id = m.make_id
                where m.year = ${yearNum}
                group by mk.id, mk.name
                order by mk.id`
@@ -61,7 +59,11 @@ app.get('/bulbs', async (req, res) => {
   let modelNum = 0;
   if (typeof model == 'string') modelNum = +model;
   const bulbs = await prisma.$queryRaw(Prisma.sql`select b.id, 
-                                             b.descr as bulb, 
+                                             b.descr as bulb,
+                                             b.url_platinum,
+                                             b.url_m_series,
+                                             b.img_platinum,
+                                             b.img_m_series, 
                                              p.id as part_id, 
                                              p.name as part, 
                                              m.name as model, 
@@ -69,12 +71,12 @@ app.get('/bulbs', async (req, res) => {
                                              m.id as model_id, 
                                              mk.id as make_id, 
                                              mk.name as make    
-                                      from "Bulb" b
-                                      join "BulbsModel"  bm on bm."bulbId" = b.id 
-                                      join "Part" p on b."partId" = p.id
-                                      join "Model" m on bm."modelId" = m.id
-                                      join "Make" mk on mk.id = m."makeId"
-                                      where bm."modelId" = ${modelNum}`);
+                                      from models m
+                                      join makes mk on mk.id = m.make_id
+                                      left join bulbs_models bm on bm.model_id = m.id 
+                                      left join bulbs b on bm.bulb_id = b.id
+                                      left join parts p on b.part_id = p.id
+                                      where m.id = ${modelNum}`);
   return res.json(bulbs);
 });
 
