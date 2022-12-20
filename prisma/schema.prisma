@@ -13,24 +13,28 @@ datasource db {
 model Make {
   id        Int      @id @default(autoincrement())
   name      String   @unique @db.VarChar(50)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
 
   models Model[]
+
+  @@map("makes")
 }
 
 model Model {
   id        Int      @id @default(autoincrement())
-  makeId    Int
+  makeId    Int      @map("make_id")
   name      String   @db.VarChar(100)
   year      Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
 
   parts PartsModel[]
   bulbs BulbsModel[]
 
   make Make @relation(fields: [makeId], references: [id])
+
+  @@map("models")
 }
 
 model Part {
@@ -38,21 +42,24 @@ model Part {
   name   String       @db.VarChar(100)
   models PartsModel[]
   bulbs  Bulb[]
+
+  @@map("parts")
 }
 
 model PartsModel {
   part    Part  @relation(fields: [partId], references: [id])
-  partId  Int
+  partId  Int   @map("part_id")
   model   Model @relation(fields: [modelId], references: [id])
-  modelId Int
+  modelId Int   @map("model_id")
 
   @@id([partId, modelId])
+  @@map("parts_models")
 }
 
 model Bulb {
   id           Int     @id @default(autoincrement())
   descr        String  @db.VarChar(100)
-  partId       Int
+  partId       Int     @map("part_id")
   img_platinum String? @db.VarChar(512)
   url_platinum String? @db.VarChar(512)
   img_m_series String? @db.VarChar(512)
@@ -61,13 +68,16 @@ model Bulb {
   models BulbsModel[]
 
   part Part @relation(fields: [partId], references: [id])
+
+  @@map("bulbs")
 }
 
 model BulbsModel {
   bulb    Bulb  @relation(fields: [bulbId], references: [id])
-  bulbId  Int
+  bulbId  Int   @map("bulb_id")
   model   Model @relation(fields: [modelId], references: [id])
-  modelId Int
+  modelId Int   @map("model_id")
 
   @@id([bulbId, modelId])
+  @@map("bulbs_models")
 }
