@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import https from 'https';
+import fs from 'fs';
 import { Prisma, PrismaClient } from '@prisma/client';
 const app = express();
 
@@ -9,56 +11,56 @@ app.use(cors());
 const prisma = new PrismaClient({});
 
 app.get('/years', async (req, res) => {
-  const years = await prisma.$queryRaw(
-    Prisma.sql`select m.year as id, m.year as name from models m  
+    const years = await prisma.$queryRaw(
+        Prisma.sql`select m.year as id, m.year as name from models m  
                group by m.year 
                order by m.year desc`
-  );
+    );
 
-  return res.json(years);
+    return res.json(years);
 });
 
 app.get('/makes', async (req, res) => {
-  const { year } = req.query;
-  let yearNum = 0;
-  if (typeof year == 'string') yearNum = +year;
+    const { year } = req.query;
+    let yearNum = 0;
+    if (typeof year == 'string') yearNum = +year;
 
-  const makes = await prisma.$queryRaw(
-    Prisma.sql`select mk.id, mk.name from models m
+    const makes = await prisma.$queryRaw(
+        Prisma.sql`select mk.id, mk.name from models m
                join makes mk on mk.id = m.make_id
                where m.year = ${yearNum}
                group by mk.id, mk.name
                order by mk.id`
-  );
+    );
 
-  return res.json(makes);
+    return res.json(makes);
 });
 
 app.get('/models', async (req, res) => {
-  const { make, year } = req.query;
-  let yearNum = 0;
-  let makeNum = 0;
-  if (typeof year == 'string') yearNum = +year;
-  if (typeof make == 'string') makeNum = +make;
-  const models = await prisma.model.findMany({
-    where: {
-      year: yearNum,
-      makeId: makeNum,
-    },
-    select: {
-      name: true,
-      id: true,
-    },
-  });
+    const { make, year } = req.query;
+    let yearNum = 0;
+    let makeNum = 0;
+    if (typeof year == 'string') yearNum = +year;
+    if (typeof make == 'string') makeNum = +make;
+    const models = await prisma.model.findMany({
+        where: {
+            year: yearNum,
+            makeId: makeNum,
+        },
+        select: {
+            name: true,
+            id: true,
+        },
+    });
 
-  return res.json(models);
+    return res.json(models);
 });
 
 app.get('/bulbs', async (req, res) => {
-  const { model } = req.query;
-  let modelNum = 0;
-  if (typeof model == 'string') modelNum = +model;
-  const bulbs = await prisma.$queryRaw(Prisma.sql`select b.id, 
+    const { model } = req.query;
+    let modelNum = 0;
+    if (typeof model == 'string') modelNum = +model;
+    const bulbs = await prisma.$queryRaw(Prisma.sql`select b.id, 
                                              b.descr as bulb,
                                              b.url_platinum,
                                              b.url_m_series,
@@ -77,10 +79,19 @@ app.get('/bulbs', async (req, res) => {
                                       left join bulbs b on bm.bulb_id = b.id
                                       left join parts p on b.part_id = p.id
                                       where m.id = ${modelNum}`);
-  return res.json(bulbs);
+    return res.json(bulbs);
 });
 
-app.listen(3333, () => {
-  console.log('app is running on http://0.0.0.0:3333');
-  console.log('or http://localhost:3333');
+const options = {
+    key: fs.readFileSync(
+        '/etc/letsencrypt/live/bulb-finder.haizerusa.com/privkey.pem'
+    ),
+    cert: fs.readFileSync(
+        '/etc/letsencrypt/live/bulb-finder.haizerusa.com/fullchain.pem'
+    ),
+};
+
+https.createServer(options, app).listen(3333, () => {
+    console.log('app is running on https://0.0.0.0:3333');
+    console.log('or https://localhost:3333');
 });
