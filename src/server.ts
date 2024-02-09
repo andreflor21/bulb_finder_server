@@ -83,12 +83,8 @@ app.get('/bulbs', async (req, res) => {
 });
 
 const options = {
-    key: fs.readFileSync(
-        '/etc/letsencrypt/live/bulb-finder.haizerusa.com/privkey.pem'
-    ),
-    cert: fs.readFileSync(
-        '/etc/letsencrypt/live/bulb-finder.haizerusa.com/fullchain.pem'
-    ),
+    key: fs.readFileSync('../privkey.pem'),
+    cert: fs.readFileSync('../fullchain.pem'),
 };
 
 https.createServer(options, app).listen(3333, () => {
