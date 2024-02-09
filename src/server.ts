@@ -83,8 +83,8 @@ app.get('/bulbs', async (req, res) => {
 });
 
 const options = {
-    key: fs.readFileSync('../privkey.pem'),
-    cert: fs.readFileSync('../fullchain.pem'),
+    key: fs.readFileSync('/home/ubuntu/server/privkey.pem'),
+    cert: fs.readFileSync('/home/ubuntu/server/fullchain.pem'),
 };
 
 https.createServer(options, app).listen(3333, () => {
